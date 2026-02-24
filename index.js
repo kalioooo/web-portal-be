@@ -70,11 +70,15 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-// Listen immediately so /health and /api-docs work even before MongoDB is ready
-app.listen(PORT, () => {
-  console.log(`[server] http://localhost:${PORT}`);
-  console.log(`[server] API docs: http://localhost:${PORT}/api-docs`);
-  connectDb()
-    .then(() => console.log('[db] Connected to MongoDB'))
-    .catch((err) => console.error('[db] MongoDB not connected:', err.message));
-});
+// Export for Vercel serverless; listen when running locally
+export default app;
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`[server] http://localhost:${PORT}`);
+    console.log(`[server] API docs: http://localhost:${PORT}/api-docs`);
+    connectDb()
+      .then(() => console.log('[db] Connected to MongoDB'))
+      .catch((err) => console.error('[db] MongoDB not connected:', err.message));
+  });
+}
