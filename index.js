@@ -20,7 +20,7 @@ import { analyticsRouter } from './routes/analytics.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const openapiPath = join(__dirname, 'openapi.json');
-const uploadsPath = join(__dirname, 'uploads');
+const uploadsPath = process.env.VERCEL ? '/tmp/uploads' : join(__dirname, 'uploads');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 4000;

@@ -6,7 +6,9 @@ import { mkdirSync, existsSync, unlinkSync } from 'fs';
 import { AITraining } from '../models/AITraining.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const uploadsDir = join(__dirname, '..', 'uploads', 'ai-training');
+const uploadsDir = process.env.VERCEL
+  ? join('/tmp', 'uploads', 'ai-training')
+  : join(__dirname, '..', 'uploads', 'ai-training');
 if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
 
 const storage = multer.diskStorage({

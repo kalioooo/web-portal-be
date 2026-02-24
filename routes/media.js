@@ -6,7 +6,9 @@ import { mkdirSync, existsSync, unlinkSync } from 'fs';
 import { MediaFile } from '../models/MediaFile.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const uploadsDir = join(__dirname, '..', 'uploads', 'media');
+const uploadsDir = process.env.VERCEL
+  ? join('/tmp', 'uploads', 'media')
+  : join(__dirname, '..', 'uploads', 'media');
 if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
 
 const storage = multer.diskStorage({
