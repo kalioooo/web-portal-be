@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web Portal API – Swagger</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4.18.2/swagger-ui.css">
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@4.18.2/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@4.18.2/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = function () {
+      var specUrl = window.location.origin + '/api-docs.json';
+      fetch(specUrl, { headers: { 'Accept': 'application/json' } })
+        .then(function (res) {
+          if (!res.ok) throw new Error('Spec fetch failed: ' + res.status);
+          return res.json();
+        })
+        .then(function (spec) {
+          window.ui = SwaggerUIBundle({
+            spec: spec,
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            layout: 'StandaloneLayout',
+            tryItOutEnabled: true
+          });
+        })
+        .catch(function (err) {
+          var el = document.getElementById('swagger-ui');
+          el.innerHTML = '<div style="padding: 2em; font-family: sans-serif; color: #333;">' +
+            '<h2>Failed to load API spec</h2><p>' + err.message + '</p>' +
+            '<p>Ensure the server is running and <a href="' + specUrl + '">' + specUrl + '</a> returns JSON.</p></div>';
+        });
+    };
+  </script>
+</body>
+</html>

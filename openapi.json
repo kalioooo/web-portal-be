@@ -1,0 +1,351 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Web Portal API",
+    "description": "Backend API for the web portal: projects and proposals.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "http://localhost:4000", "description": "Local" }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "description": "Returns server health status.",
+        "operationId": "getHealth",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "message": { "type": "string", "example": "web-portal-backend" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects": {
+      "get": {
+        "summary": "List projects",
+        "description": "Returns all projects, newest first.",
+        "operationId": "listProjects",
+        "responses": {
+          "200": {
+            "description": "List of projects",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Project" } }
+              }
+            }
+          },
+          "500": { "description": "Server error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "post": {
+        "summary": "Create project",
+        "description": "Create a new project. Do not send `id` or `_id`; they are ignored.",
+        "operationId": "createProject",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProjectInput" },
+              "example": {
+                "title": "My Project",
+                "slug": "my-project",
+                "status": "draft",
+                "short_description": "A short description of the project."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Project" } }
+            }
+          },
+          "400": { "description": "Bad request", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } }
+        }
+      }
+    },
+    "/api/projects/{id}": {
+      "get": {
+        "summary": "Get project by ID",
+        "operationId": "getProject",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Project", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Project" } } } },
+          "404": { "description": "Not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "500": { "description": "Server error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } }
+        }
+      },
+      "patch": {
+        "summary": "Update project",
+        "description": "Partial update. Do not send `id` or `_id` in body; they are stripped.",
+        "operationId": "updateProject",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProjectInput" } }
+        },
+        "responses": {
+          "200": { "description": "Updated project", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Project" } } } },
+          "400": { "description": "Bad request", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "delete": {
+        "summary": "Delete project",
+        "operationId": "deleteProject",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "204": { "description": "No content" },
+          "404": { "description": "Not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "500": { "description": "Server error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/proposals": {
+      "get": {
+        "summary": "List proposals",
+        "description": "Returns all proposals, most recently updated first.",
+        "operationId": "listProposals",
+        "responses": {
+          "200": {
+            "description": "List of proposals",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Proposal" } }
+              }
+            }
+          },
+          "500": { "description": "Server error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "post": {
+        "summary": "Create proposal",
+        "operationId": "createProposal",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProposalInput" },
+              "example": {
+                "jobTitle": "Full-stack developer needed",
+                "jobPostedAt": "2025-02-01",
+                "status": "draft",
+                "clientName": "Acme Corp"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Proposal" } }
+            }
+          },
+          "400": { "description": "Bad request", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/proposals/{id}": {
+      "get": {
+        "summary": "Get proposal by ID",
+        "operationId": "getProposal",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Proposal", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Proposal" } } } },
+          "404": { "description": "Not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "500": { "description": "Server error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "patch": {
+        "summary": "Update proposal",
+        "operationId": "updateProposal",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProposalInput" } } },
+        "responses": {
+          "200": { "description": "Updated proposal", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Proposal" } } } },
+          "400": { "description": "Bad request", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "delete": {
+        "summary": "Delete proposal",
+        "operationId": "deleteProposal",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "204": { "description": "No content" },
+          "404": { "description": "Not found", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "500": { "description": "Server error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": { "error": { "type": "string" } }
+      },
+      "Project": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "MongoDB ObjectId as string" },
+          "title": { "type": "string" },
+          "slug": { "type": "string" },
+          "project_category": { "type": "string" },
+          "project_type": { "type": "string" },
+          "status": { "type": "string", "enum": ["published", "draft", "archived", "ongoing", "completed"] },
+          "short_description": { "type": "string" },
+          "thumbnail_image": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "problem_statement": { "type": "string" },
+          "solution_overview": { "type": "string" },
+          "your_role": { "type": "string" },
+          "tech_stack": { "type": "array", "items": { "type": "string" } },
+          "architecture_type": { "type": "string" },
+          "deployment_method": { "type": "string" },
+          "core_features": { "type": "array", "items": { "type": "string" } },
+          "technical_challenges": { "type": "array", "items": { "type": "string" } },
+          "how_challenges_were_solved": { "type": "array", "items": { "type": "string" } },
+          "measurable_results": { "type": "array", "items": { "type": "string" } },
+          "github_link": { "type": "string" },
+          "live_demo_link": { "type": "string" },
+          "video_demo_link": { "type": "string" },
+          "start_date": { "type": "string" },
+          "end_date": { "type": "string" },
+          "ai_search_text": { "type": "string" },
+          "ai_summary": { "type": "string" },
+          "embedding_vector": { "type": "array", "items": { "type": "number" }, "description": "Optional vector for AI/semantic search" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ProjectInput": {
+        "type": "object",
+        "required": ["title", "slug"],
+        "properties": {
+          "title": { "type": "string", "description": "Project title" },
+          "slug": { "type": "string", "description": "URL-friendly unique slug" },
+          "project_category": { "type": "string" },
+          "project_type": { "type": "string" },
+          "status": { "type": "string", "enum": ["published", "draft", "archived", "ongoing", "completed"] },
+          "short_description": { "type": "string" },
+          "thumbnail_image": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "problem_statement": { "type": "string" },
+          "solution_overview": { "type": "string" },
+          "your_role": { "type": "string" },
+          "tech_stack": { "type": "array", "items": { "type": "string" } },
+          "architecture_type": { "type": "string" },
+          "deployment_method": { "type": "string" },
+          "core_features": { "type": "array", "items": { "type": "string" } },
+          "technical_challenges": { "type": "array", "items": { "type": "string" } },
+          "how_challenges_were_solved": { "type": "array", "items": { "type": "string" } },
+          "measurable_results": { "type": "array", "items": { "type": "string" } },
+          "github_link": { "type": "string" },
+          "live_demo_link": { "type": "string" },
+          "video_demo_link": { "type": "string" },
+          "start_date": { "type": "string" },
+          "end_date": { "type": "string" },
+          "ai_search_text": { "type": "string" },
+          "ai_summary": { "type": "string" },
+          "embedding_vector": { "type": "array", "items": { "type": "number" }, "description": "Optional vector for AI/semantic search" }
+        },
+        "example": {
+          "title": "My Project",
+          "slug": "my-project",
+          "status": "draft",
+          "short_description": "A short description of the project."
+        }
+      },
+      "Proposal": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "jobTitle": { "type": "string" },
+          "clientName": { "type": "string" },
+          "jobUrl": { "type": "string" },
+          "budget": { "type": "string" },
+          "jobPostedAt": { "type": "string" },
+          "proposalSentAt": { "type": ["string", "null"] },
+          "status": {
+            "type": "string",
+            "enum": ["draft", "preparing", "submitted", "viewed", "interview", "offered", "hired", "declined", "withdrawn"]
+          },
+          "notes": { "type": "string" },
+          "proposedRate": { "type": "string" },
+          "client": { "$ref": "#/components/schemas/ClientInfo" },
+          "history": { "type": "array", "items": { "$ref": "#/components/schemas/ProposalHistoryItem" } },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ProposalInput": {
+        "type": "object",
+        "required": ["jobTitle", "jobPostedAt"],
+        "properties": {
+          "jobTitle": { "type": "string" },
+          "clientName": { "type": "string" },
+          "jobUrl": { "type": "string" },
+          "budget": { "type": "string" },
+          "jobPostedAt": { "type": "string" },
+          "proposalSentAt": { "type": ["string", "null"] },
+          "status": { "type": "string", "enum": ["draft", "preparing", "submitted", "viewed", "interview", "offered", "hired", "declined", "withdrawn"] },
+          "notes": { "type": "string" },
+          "proposedRate": { "type": "string" },
+          "client": { "$ref": "#/components/schemas/ClientInfo" },
+          "history": { "type": "array", "items": { "$ref": "#/components/schemas/ProposalHistoryItem" } }
+        },
+        "example": {
+          "jobTitle": "Full-stack developer needed",
+          "jobPostedAt": "2025-02-01",
+          "status": "draft",
+          "clientName": "Acme Corp"
+        }
+      },
+      "ClientInfo": {
+        "type": "object",
+        "properties": {
+          "paymentVerified": { "type": "boolean" },
+          "phoneVerified": { "type": "boolean" },
+          "rating": { "type": "number" },
+          "reviewCount": { "type": "number" },
+          "location": { "type": "string" },
+          "lastActiveAt": { "type": "string" },
+          "jobsPosted": { "type": "number" },
+          "hireRatePercent": { "type": "number" },
+          "openJobs": { "type": "number" },
+          "totalSpent": { "type": "string" },
+          "hiresCount": { "type": "number" },
+          "activeHires": { "type": "number" },
+          "memberSince": { "type": "string" }
+        }
+      },
+      "ProposalHistoryItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "at": { "type": "string" },
+          "type": { "type": "string", "enum": ["created", "status_change", "client_updated", "note", "sent"] },
+          "fromStatus": { "type": "string" },
+          "toStatus": { "type": "string" },
+          "note": { "type": "string" },
+          "label": { "type": "string" }
+        }
+      }
+    }
+  }
+}
